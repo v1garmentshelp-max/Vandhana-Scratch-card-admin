@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./AdminCustomers.css";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://vandhana-scratch-card-backend.vercel.app";
 
 export default function AdminCustomers() {
   const [customers, setCustomers] = useState([]);
