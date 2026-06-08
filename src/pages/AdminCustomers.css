@@ -16,7 +16,7 @@
 }
 
 .ac-shell {
-  width: min(1400px, 100%);
+  width: min(1500px, 100%);
   margin: 0 auto;
   padding: 28px;
   border-radius: 28px;
@@ -74,6 +74,11 @@
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 12px 28px rgba(255, 214, 10, 0.16);
+}
+
+.ac-refresh-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 34px rgba(255, 214, 10, 0.22);
 }
 
 .ac-toolbar {
@@ -168,7 +173,7 @@
 
 .ac-main-table {
   width: 100%;
-  min-width: 1600px;
+  min-width: 2050px;
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -218,27 +223,27 @@
 
 .ac-main-table th:nth-child(3),
 .ac-main-table td:nth-child(3) {
-  width: 130px;
+  width: 140px;
 }
 
 .ac-main-table th:nth-child(4),
 .ac-main-table td:nth-child(4) {
-  width: 100px;
+  width: 140px;
 }
 
 .ac-main-table th:nth-child(5),
 .ac-main-table td:nth-child(5) {
-  width: 130px;
+  width: 150px;
 }
 
 .ac-main-table th:nth-child(6),
 .ac-main-table td:nth-child(6) {
-  width: 130px;
+  width: 100px;
 }
 
 .ac-main-table th:nth-child(7),
 .ac-main-table td:nth-child(7) {
-  width: 160px;
+  width: 130px;
 }
 
 .ac-main-table th:nth-child(8),
@@ -248,27 +253,61 @@
 
 .ac-main-table th:nth-child(9),
 .ac-main-table td:nth-child(9) {
-  width: 110px;
+  width: 160px;
 }
 
 .ac-main-table th:nth-child(10),
 .ac-main-table td:nth-child(10) {
-  width: 280px;
+  width: 130px;
 }
 
 .ac-main-table th:nth-child(11),
 .ac-main-table td:nth-child(11) {
-  width: 160px;
+  width: 120px;
 }
 
 .ac-main-table th:nth-child(12),
 .ac-main-table td:nth-child(12) {
-  width: 130px;
+  width: 280px;
 }
 
 .ac-main-table th:nth-child(13),
 .ac-main-table td:nth-child(13) {
-  width: 140px;
+  width: 170px;
+}
+
+.ac-main-table th:nth-child(14),
+.ac-main-table td:nth-child(14) {
+  width: 130px;
+}
+
+.ac-main-table th:nth-child(15),
+.ac-main-table td:nth-child(15) {
+  width: 150px;
+}
+
+.ac-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ac-status-yes {
+  color: #dfffe8;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(34, 197, 94, 0.26);
+}
+
+.ac-status-no {
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .ac-children-table-wrap {
@@ -367,6 +406,6 @@
   }
 
   .ac-main-table {
-    min-width: 1600px;
+    min-width: 2050px;
   }
 }

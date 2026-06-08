@@ -47,7 +47,8 @@ export default function AdminCustomers() {
         customer.city,
         customer.marital_status,
         customer.shopping_preference,
-        customer.spouse_name
+        customer.spouse_name,
+        customer.whatsapp_opt_in ? "whatsapp yes opted in consent yes" : "whatsapp no opted out consent no"
       ]
         .filter(Boolean)
         .join(" ")
@@ -71,6 +72,24 @@ export default function AdminCustomers() {
     return date.toLocaleDateString("en-GB");
   };
 
+  const formatDateTime = (value) => {
+    if (!value) return "-";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "-";
+    return date.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  };
+
+  const consentCount = useMemo(
+    () => customers.filter((customer) => customer.whatsapp_opt_in).length,
+    [customers]
+  );
+
   return (
     <div className="ac-wrap">
       <div className="ac-shell">
@@ -79,7 +98,7 @@ export default function AdminCustomers() {
             <p className="ac-kicker">Admin Panel</p>
             <h1>Customer Submissions</h1>
             <p className="ac-subtitle">
-              View all submitted customer details and family information in one table.
+              View all submitted customer details, family information and WhatsApp consent status.
             </p>
           </div>
 
@@ -92,7 +111,7 @@ export default function AdminCustomers() {
           <div className="ac-search-box">
             <input
               type="text"
-              placeholder="Search by customer, mobile, city, status, spouse or child"
+              placeholder="Search by customer, mobile, city, status, spouse, child or WhatsApp consent"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -106,6 +125,10 @@ export default function AdminCustomers() {
             <div className="ac-summary-card">
               <span>Showing</span>
               <strong>{filteredCustomers.length}</strong>
+            </div>
+            <div className="ac-summary-card">
+              <span>WhatsApp Opt-ins</span>
+              <strong>{consentCount}</strong>
             </div>
           </div>
         </div>
@@ -124,6 +147,8 @@ export default function AdminCustomers() {
                   <th>ID</th>
                   <th>Customer Name</th>
                   <th>Mobile Number</th>
+                  <th>WhatsApp Consent</th>
+                  <th>Opt-in Date</th>
                   <th>Gender</th>
                   <th>Date of Birth</th>
                   <th>Marital Status</th>
@@ -142,12 +167,30 @@ export default function AdminCustomers() {
                     <td>{customer.id}</td>
                     <td>{customer.customer_name || "-"}</td>
                     <td>{customer.mobile_number || "-"}</td>
+                    <td>
+                      <span
+                        className={`ac-status-badge ${
+                          customer.whatsapp_opt_in ? "ac-status-yes" : "ac-status-no"
+                        }`}
+                      >
+                        {customer.whatsapp_opt_in ? "Yes" : "No"}
+                      </span>
+                    </td>
+                    <td>{formatDateTime(customer.whatsapp_opt_in_at)}</td>
                     <td>{customer.gender || "-"}</td>
                     <td>{formatDate(customer.date_of_birth)}</td>
                     <td>{customer.marital_status || "-"}</td>
                     <td>{customer.spouse_name || "-"}</td>
                     <td>{formatDate(customer.spouse_dob)}</td>
-                    <td>{customer.has_children ? "Yes" : "No"}</td>
+                    <td>
+                      <span
+                        className={`ac-status-badge ${
+                          customer.has_children ? "ac-status-yes" : "ac-status-no"
+                        }`}
+                      >
+                        {customer.has_children ? "Yes" : "No"}
+                      </span>
+                    </td>
                     <td>
                       {customer.children && customer.children.length > 0 ? (
                         <div className="ac-children-table-wrap">
@@ -176,7 +219,7 @@ export default function AdminCustomers() {
                     </td>
                     <td>{customer.shopping_preference || "-"}</td>
                     <td>{customer.city || "-"}</td>
-                    <td>{formatDate(customer.created_at)}</td>
+                    <td>{formatDateTime(customer.created_at)}</td>
                   </tr>
                 ))}
               </tbody>
