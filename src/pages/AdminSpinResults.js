@@ -1,4 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL ||
@@ -82,57 +87,64 @@ export default function AdminSpinResults() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const loadSpinResults = async (refresh = false) => {
-    try {
-      if (refresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
+  const loadSpinResults = useCallback(
+    async (refresh = false) => {
+      try {
+        if (refresh) {
+          setRefreshing(true);
+        } else {
+          setLoading(true);
+        }
+
+        setError("");
+
+        const params = new URLSearchParams({
+          page: String(page),
+          limit: String(limit)
+        });
+
+        if (appliedSearch) {
+          params.set("search", appliedSearch);
+        }
+
+        if (status) {
+          params.set("status", status);
+        }
+
+        if (rewardType) {
+          params.set("rewardType", rewardType);
+        }
+
+        const response = await fetch(
+          `${API_BASE_URL}/api/admin/spins?${params.toString()}`
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Failed to fetch spin results"
+          );
+        }
+
+        setResults(Array.isArray(data.results) ? data.results : []);
+        setTotal(Number(data.total || 0));
+        setTotalPages(Math.max(Number(data.totalPages || 1), 1));
+      } catch (requestError) {
+        setError(
+          requestError.message || "Unable to connect to the backend"
+        );
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-
-      setError("");
-
-      const params = new URLSearchParams({
-        page: String(page),
-        limit: String(limit)
-      });
-
-      if (appliedSearch) {
-        params.set("search", appliedSearch);
-      }
-
-      if (status) {
-        params.set("status", status);
-      }
-
-      if (rewardType) {
-        params.set("rewardType", rewardType);
-      }
-
-      const response = await fetch(
-        `${API_BASE_URL}/api/admin/spins?${params.toString()}`
-      );
-
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch spin results");
-      }
-
-      setResults(Array.isArray(data.results) ? data.results : []);
-      setTotal(Number(data.total || 0));
-      setTotalPages(Math.max(Number(data.totalPages || 1), 1));
-    } catch (requestError) {
-      setError(requestError.message || "Unable to connect to the backend");
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+    },
+    [page, limit, appliedSearch, status, rewardType]
+  );
 
   useEffect(() => {
     loadSpinResults();
-  }, [page, limit, appliedSearch, status, rewardType]);
+  }, [loadSpinResults]);
 
   const summary = useMemo(() => {
     const pending = results.filter(
@@ -163,6 +175,7 @@ export default function AdminSpinResults() {
     event.preventDefault();
     setPage(1);
     setAppliedSearch(searchInput.trim());
+    setMessage("");
   };
 
   const clearFilters = () => {
@@ -171,6 +184,8 @@ export default function AdminSpinResults() {
     setStatus("");
     setRewardType("");
     setPage(1);
+    setMessage("");
+    setError("");
   };
 
   const updateClaimStatus = async (spinId, claimStatus) => {
@@ -195,7 +210,9 @@ export default function AdminSpinResults() {
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to update spin status");
+        throw new Error(
+          data.message || "Failed to update spin status"
+        );
       }
 
       setResults((currentResults) =>
@@ -211,7 +228,9 @@ export default function AdminSpinResults() {
 
       setMessage("Reward status updated successfully");
     } catch (requestError) {
-      setError(requestError.message || "Unable to update reward status");
+      setError(
+        requestError.message || "Unable to update reward status"
+      );
     } finally {
       setUpdatingId(null);
     }
@@ -224,7 +243,8 @@ export default function AdminSpinResults() {
           <span className="admin-page-kicker">Reward History</span>
           <h2>Spin Results</h2>
           <p>
-            Review every customer spin and update claim or redemption status.
+            Review customer spins and update reward claim or redemption
+            status.
           </p>
         </div>
 
@@ -254,21 +274,21 @@ export default function AdminSpinResults() {
         </div>
 
         <div className="admin-summary-card">
-          <span>Pending on Page</span>
+          <span>Pending</span>
           <strong>{summary.pending}</strong>
-          <small>Waiting for claim</small>
+          <small>Pending on this page</small>
         </div>
 
         <div className="admin-summary-card">
-          <span>Claimed on Page</span>
+          <span>Claimed</span>
           <strong>{summary.claimed}</strong>
-          <small>Customer claimed</small>
+          <small>Claimed on this page</small>
         </div>
 
         <div className="admin-summary-card">
-          <span>Special on Page</span>
+          <span>Special Rewards</span>
           <strong>{summary.special}</strong>
-          <small>Special pool rewards</small>
+          <small>Special rewards on this page</small>
         </div>
       </div>
 
@@ -282,7 +302,9 @@ export default function AdminSpinResults() {
                 type="search"
                 placeholder="Search customer, mobile or reward"
                 value={searchInput}
-                onChange={(event) => setSearchInput(event.target.value)}
+                onChange={(event) =>
+                  setSearchInput(event.target.value)
+                }
               />
             </div>
 
@@ -300,6 +322,7 @@ export default function AdminSpinResults() {
               onChange={(event) => {
                 setPage(1);
                 setStatus(event.target.value);
+                setMessage("");
               }}
             >
               {claimStatusOptions.map((option) => (
@@ -314,6 +337,7 @@ export default function AdminSpinResults() {
               onChange={(event) => {
                 setPage(1);
                 setRewardType(event.target.value);
+                setMessage("");
               }}
             >
               {rewardTypeOptions.map((option) => (
@@ -342,7 +366,7 @@ export default function AdminSpinResults() {
         ) : results.length === 0 ? (
           <div className="admin-state">
             <h3>No spin results found</h3>
-            <p>No results match the currently selected filters.</p>
+            <p>No results match the selected filters.</p>
           </div>
         ) : (
           <>
@@ -389,7 +413,8 @@ export default function AdminSpinResults() {
                             {result.rewardType === "discount" &&
                             result.discountPercent
                               ? `${result.discountPercent}% discount`
-                              : result.rewardType?.replace(/_/g, " ") || "-"}
+                              : result.rewardType?.replace(/_/g, " ") ||
+                                "-"}
                           </span>
                         </div>
                       </td>
@@ -412,7 +437,8 @@ export default function AdminSpinResults() {
                         <span
                           className={`admin-status-badge admin-claim-${result.claimStatus}`}
                         >
-                          {result.claimStatus?.replace(/_/g, " ") || "-"}
+                          {result.claimStatus?.replace(/_/g, " ") ||
+                            "-"}
                         </span>
                       </td>
 
@@ -428,7 +454,7 @@ export default function AdminSpinResults() {
                         ) : (
                           <select
                             className="admin-status-select"
-                            value={result.claimStatus}
+                            value={result.claimStatus || "pending"}
                             disabled={updatingId === result.id}
                             onChange={(event) =>
                               updateClaimStatus(
